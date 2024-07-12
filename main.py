@@ -1,3 +1,5 @@
+import os
+
 from super_gradients.training import models
 from super_gradients import init_trainer, Trainer
 
@@ -14,19 +16,10 @@ from super_gradients.common import MultiGPUMode
 from super_gradients.training.utils.distributed_training_utils import setup_device
 
 # Initialize the environment
-init_trainer()
+#init_trainer()
 
-# Launch DDP on 4 GPUs'
-setup_device(multi_gpu=MultiGPUMode.DISTRIBUTED_DATA_PARALLEL, num_gpus=2)
-
-yolo_nas_s = models.get("yolo_nas_s", pretrained_weights="coco")
-
-summary(model=yolo_nas_s,
-        input_size=(16, 3, 640, 640),
-        col_names=["input_size", "output_size", "num_params", "trainable"],
-        col_width=20,
-        row_settings=["var_names"]
-)
+# Launch DDP on GPUs'
+setup_device(multi_gpu="DP", num_gpus=None)
 
 CHECKPOINT_DIR = 'checkpoints'
 trainer = Trainer(experiment_name='my_first_yolonas_run', ckpt_root_dir=CHECKPOINT_DIR)
@@ -55,8 +48,8 @@ train_data = coco_detection_yolo_format_train(
         'classes': dataset_params['classes']
     },
     dataloader_params={
-        'batch_size':16,
-        'num_workers':2
+        'batch_size':8,
+        'num_workers':64
     }
 )
 
@@ -68,7 +61,7 @@ val_data = coco_detection_yolo_format_val(
         'classes': dataset_params['classes']
     },
     dataloader_params={
-        'batch_size':16,
+        'batch_size':8,
         'num_workers':2
     }
 )
@@ -81,7 +74,7 @@ test_data = coco_detection_yolo_format_val(
         'classes': dataset_params['classes']
     },
     dataloader_params={
-        'batch_size':16,
+        'batch_size':8,
         'num_workers':2
     }
 )
@@ -91,7 +84,6 @@ model = models.get('yolo_nas_s',
                    num_classes=len(dataset_params['classes']),
                    pretrained_weights="coco"
                    )
-
 train_params = {
     # ENABLING SILENT MODE
     'silent_mode': True,
@@ -109,7 +101,7 @@ train_params = {
     "ema_params": {"decay": 0.9, "decay_type": "threshold"},
     # ONLY TRAINING FOR 10 EPOCHS FOR THIS EXAMPLE NOTEBOOK
     "max_epochs": 10,
-    "mixed_precision": True,
+    "mixed_precision": False,
     "loss": PPYoloELoss(
         use_static_assigner=False,
         # NOTE: num_classes needs to be defined here
@@ -139,9 +131,10 @@ trainer.train(model=model,
               train_loader=train_data,
               valid_loader=val_data)
 
+checkpoint_path=os.path.join(trainer.checkpoints_dir_path, "average_model.pth")
 best_model = models.get('yolo_nas_s',
                         num_classes=len(dataset_params['classes']),
-                        checkpoint_path="checkpoints/my_first_yolonas_run/average_model.pth")
+                        checkpoint_path=checkpoint_path)
 
 trainer.test(model=best_model,
             test_loader=test_data,
