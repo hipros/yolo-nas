@@ -29,7 +29,7 @@ dataset = project.version(5).download("yolov5")
 
 
 dataset_params = {
-    'data_dir':'/content/U.S.-Coins-Dataset---A.Tatham-5',
+    'data_dir':'/workspace/U.S.-Coins-Dataset---A.Tatham-5',
     'train_images_dir':'train/images',
     'train_labels_dir':'train/labels',
     'val_images_dir':'valid/images',
