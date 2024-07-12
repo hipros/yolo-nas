@@ -17,7 +17,7 @@ from super_gradients.training.utils.distributed_training_utils import setup_devi
 init_trainer()
 
 # Launch DDP on 4 GPUs'
-setup_device(multi_gpu=MultiGPUMode.DISTRIBUTED_DATA_PARALLEL, num_gpus=4)
+setup_device(multi_gpu=MultiGPUMode.DISTRIBUTED_DATA_PARALLEL, num_gpus=2)
 
 yolo_nas_s = models.get("yolo_nas_s", pretrained_weights="coco")
 
