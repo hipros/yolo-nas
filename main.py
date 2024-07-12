@@ -1,5 +1,6 @@
 from super_gradients.training import models
-from super_gradients.training import Trainer
+from super_gradients import init_trainer, Trainer
+
 from torchinfo import summary
 from roboflow import Roboflow
 from super_gradients.training import dataloaders
@@ -9,7 +10,14 @@ from super_gradients.training import models
 from super_gradients.training.losses import PPYoloELoss
 from super_gradients.training.metrics import DetectionMetrics_050
 from super_gradients.training.models.detection_models.pp_yolo_e import PPYoloEPostPredictionCallback
+from super_gradients.common import MultiGPUMode
+from super_gradients.training.utils.distributed_training_utils import setup_device
 
+# Initialize the environment
+init_trainer()
+
+# Launch DDP on 4 GPUs'
+setup_device(multi_gpu=MultiGPUMode.DISTRIBUTED_DATA_PARALLEL, num_gpus=4)
 
 yolo_nas_s = models.get("yolo_nas_s", pretrained_weights="coco")
 
