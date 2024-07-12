@@ -11,9 +11,9 @@ from super_gradients.training.metrics import DetectionMetrics_050
 from super_gradients.training.models.detection_models.pp_yolo_e import PPYoloEPostPredictionCallback
 
 
-yolo_nas_l = models.get("yolo_nas_l", pretrained_weights="coco")
+yolo_nas_s = models.get("yolo_nas_s", pretrained_weights="coco")
 
-summary(model=yolo_nas_l,
+summary(model=yolo_nas_s,
         input_size=(16, 3, 640, 640),
         col_names=["input_size", "output_size", "num_params", "trainable"],
         col_width=20,
@@ -79,7 +79,7 @@ test_data = coco_detection_yolo_format_val(
 )
 
 
-model = models.get('yolo_nas_l',
+model = models.get('yolo_nas_s',
                    num_classes=len(dataset_params['classes']),
                    pretrained_weights="coco"
                    )
@@ -131,7 +131,7 @@ trainer.train(model=model,
               train_loader=train_data,
               valid_loader=val_data)
 
-best_model = models.get('yolo_nas_l',
+best_model = models.get('yolo_nas_s',
                         num_classes=len(dataset_params['classes']),
                         checkpoint_path="checkpoints/my_first_yolonas_run/average_model.pth")
 
